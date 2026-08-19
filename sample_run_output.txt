@@ -1,0 +1,20 @@
+Run mode: OFFLINE DEMO (keyword router, same tools)
+
+Q: What's our open pipeline in EMEA?
+A: pipeline (EMEA): $199,000 — Sum of amount for opportunities not yet closed (open pipeline).
+
+Q: What's our overall win rate?
+A: win_rate (ALL): 70.0% — Share of closed opportunities that closed won.
+
+Q: What's our average discount on closed-won deals?
+A: avg_discount (ALL): 11.9% — Average discount percentage across closed-won deals.
+
+Q: What discount level needs VP approval?
+A: Based on the sales playbook and policy docs:
+- (discount_policy.md) - Discounts up to 10% can be approved directly by the Account Executive. - Discounts between 10% and 20% require Regional Sales Director sign-off. - Discounts above 20% require VP of Sales and Finance approval, and must
+- (discount_policy.md) include a business justification tied to competitive displacement or strategic account expansion. - EMEA deals closed in Q1 are eligible for an additional 3% promotional discount as part of the regional growth incentive program.
+
+Q: How are territories defined for APAC?
+A: Based on the sales playbook and policy docs:
+- (territory_definitions.md) - APAC: Asia-Pacific and Japan, split into Greater China and Rest-of-APAC sub-regions for reporting purposes. - Named accounts above $5M in annual contract value are managed by the Strategic Accounts team regardless of geography.
+

@@ -1,0 +1,53 @@
+model_name: sales_pipeline_semantic_model
+description: >
+  Semantic layer that maps natural-language business terms (pipeline,
+  bookings, win rate, discounting) to underlying sales data fields and
+  aggregations, so an agent can answer questions using consistent,
+  governed definitions instead of ad-hoc SQL per question.
+  This mirrors the "author and iterate on YAML semantic models" pattern
+  described in F5's Sales BI job posting.
+
+source:
+  table: sales_data
+  file: sales_data.csv
+  primary_key: opportunity_id
+
+entities:
+  opportunity:
+    fields:
+      account_name: { column: account, type: string }
+      region: { column: region, type: string }
+      stage: { column: stage, type: string }
+      amount: { column: amount_usd, type: currency }
+      close_date: { column: close_date, type: date }
+      discount_pct: { column: discount_pct, type: percent }
+
+metrics:
+  pipeline:
+    description: Sum of amount for opportunities not yet closed (open pipeline).
+    agg: sum
+    field: amount
+    filter: "stage not in ['Closed Won', 'Closed Lost']"
+
+  bookings:
+    description: Sum of amount for opportunities that closed won.
+    agg: sum
+    field: amount
+    filter: "stage == 'Closed Won'"
+
+  win_rate:
+    description: Share of closed opportunities that closed won.
+    agg: ratio
+    numerator_filter: "stage == 'Closed Won'"
+    denominator_filter: "stage in ['Closed Won', 'Closed Lost']"
+
+  avg_discount:
+    description: Average discount percentage across closed-won deals.
+    agg: mean
+    field: discount_pct
+    filter: "stage == 'Closed Won'"
+
+dimensions:
+  - region
+  - stage
+  - account_name

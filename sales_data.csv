@@ -1,0 +1,16 @@
+opportunity_id,account,region,stage,amount_usd,close_date,discount_pct
+OPP-1001,Northwind Traders,AMER,Closed Won,182000,2026-01-14,12
+OPP-1002,Contoso Retail,EMEA,Closed Won,94000,2026-01-22,8
+OPP-1003,Globex Corp,AMER,Closed Lost,145000,2026-01-30,0
+OPP-1004,Initech,APAC,Open - Negotiation,210000,2026-04-15,0
+OPP-1005,Umbrella Health,EMEA,Closed Won,63000,2026-02-05,15
+OPP-1006,Wayne Analytics,AMER,Open - Proposal,88000,2026-03-20,0
+OPP-1007,Stark Industries,AMER,Closed Won,310000,2026-02-18,10
+OPP-1008,Wonka Foods,EMEA,Closed Lost,72000,2026-02-25,0
+OPP-1009,Hooli,APAC,Open - Discovery,54000,2026-05-01,0
+OPP-1010,Soylent Corp,AMER,Closed Won,127000,2026-03-02,18
+OPP-1011,Acme Co,EMEA,Open - Negotiation,199000,2026-04-10,0
+OPP-1012,Vandelay Industries,APAC,Closed Won,45000,2026-01-28,6
+OPP-1013,Pied Piper,AMER,Closed Won,268000,2026-03-11,14
+OPP-1014,Massive Dynamic,EMEA,Closed Lost,110000,2026-02-14,0
+OPP-1015,Cyberdyne Systems,APAC,Open - Proposal,175000,2026-05-20,0
