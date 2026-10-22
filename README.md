@@ -1,118 +1,51 @@
-# AI Sales Intelligence Agent — Prototype
+# AI Sales Intelligence Agent
+### Ask a sales question. Get an answer grounded in metrics and policy.
 
-A small, working prototype built to demonstrate the core pattern in F5's
-AI Sales Intelligence Analyst role: a conversational agent that answers
-sales/pipeline questions in natural language by grounding its answers in
-(1) a governed semantic model and (2) a retrieval index over policy docs,
-rather than hallucinating numbers or free-text answers.
+A conversational analytics prototype that combines governed CRM metrics with document retrieval, keeping calculations in deterministic tools and using an LLM to select tools and explain results.
 
-**What this is:** a personal project, built quickly to show the pattern
-and prove I can pick this stack up fast — not a claim of prior production
-experience with these specific tools.
+## The business problem
+Pipeline questions and policy questions need different evidence. A numerical answer should come from a defined metric; a discount rule should come from a policy document. This project gives both a clear source.
 
-## Dashboard
+## What I built
+- **Semantic model:** YAML definitions for pipeline, bookings, win rate, and average discount over sample CRM data.
+- **Policy retrieval:** TF-IDF and cosine-similarity search over discount and territory documents.
+- **Tool layer:** separate metric-query and document-search functions.
+- **Agent:** OpenAI function calling in live mode; a keyword router for an offline demonstration.
+- **Interface:** Streamlit dashboard exposing the metrics, chat, and grounding material.
 
-`dashboard.py` is a Streamlit front end over `agent.py` — stat tiles for
-pipeline/bookings/win rate/discount, a chat box to ask questions, and a
-panel showing the underlying YAML semantic model and knowledge-base docs
-so it's visible what's grounding each answer. Run it with:
+**Stack:** Python · Streamlit · pandas · OpenAI API · scikit-learn · YAML
 
-```
-pip install streamlit
+## Run locally
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 streamlit run dashboard.py
 ```
 
-## Components
+Or run `python agent.py` for the command-line demonstration.
 
-- `semantic_model.yaml` — defines business metrics (pipeline, bookings,
-  win rate, average discount) as governed aggregations over the
-  underlying data, instead of one-off SQL per question. Adding a new
-  metric or dimension means editing YAML, not code.
-- `sales_data.csv` — mock CRM/opportunity data standing in for a
-  Salesforce export.
-- `knowledge_base/` — short policy and playbook docs (discounting rules,
-  territory definitions, pipeline-review triggers).
-- `vector_search.py` — a retrieval/vector search index over those docs
-  (TF-IDF + cosine similarity, so it runs fully offline with no API key;
-  swapping in real embeddings or a hosted vector DB is a localized
-  change — see comments in the file).
-- `agent.py` — the agent layer: routes a question to either the
-  semantic-model tool or the doc-retrieval tool and returns a grounded
-  answer. Supports two modes:
-  - **LIVE**: if `OPENAI_API_KEY` is set, a real OpenAI model
-    (`gpt-4o-mini`) does the routing via actual function/tool calling
-    (implemented with the current OpenAI Python SDK's `tools=` /
-    `tool_calls` interface). Verified working end-to-end on a live run —
-    see the LIVE sample run below, where the model composes its own
-    natural-language answers from tool results rather than reusing any
-    hardcoded string.
-  - **OFFLINE DEMO**: a keyword router calls the exact same
-    `tool_query_semantic_model` / `tool_search_docs` functions the LIVE
-    path uses, so the semantic-model and retrieval logic itself is
-    fully verified end-to-end without network access (this is the mode
-    shown in the sample run below).
+Without `OPENAI_API_KEY`, the app uses the offline router. Configure that environment variable to use live OpenAI tool calling. Keep the key out of source control.
 
-## Example run (LIVE mode, verified)
+## Try asking
+- What's our open pipeline in EMEA?
+- What's our overall win rate?
+- What's our average discount on closed-won deals?
+- What discount level needs VP approval?
+- How are territories defined for APAC?
 
-```
-Run mode: LIVE (OpenAI function-calling)
+These questions use the repository's sample CRM records and policy documents, not a live Salesforce connection.
 
-Q: What's our open pipeline in EMEA?
-A: Our open pipeline in EMEA is $199,000.
+## Architecture decisions
+| Decision | Why |
+| --- | --- |
+| Metrics defined in YAML | Keep business definitions separate from natural-language phrasing. |
+| Deterministic calculations | Let code compute the number rather than asking an LLM to invent it. |
+| Shared tools in both modes | Make the data/retrieval workflow explorable without API credentials. |
+| Lightweight lexical retrieval | Keep the demo local and inspectable; this is TF-IDF, not neural embeddings. |
 
-Q: What's our overall win rate?
-A: Our overall win rate is 70%.
+## Scope & next steps
+Portfolio prototype. It uses mock CRM data and a small local policy corpus. Production work would include warehouse integration, access controls, embedding-based retrieval if useful for the corpus, and evaluation cases for routing, numerical correctness, and answer faithfulness.
 
-Q: What's our average discount on closed-won deals?
-A: Our average discount on closed-won deals is 11.86%.
-
-Q: What discount level needs VP approval?
-A: Discounts above 20% require VP of Sales and Finance approval.
-
-Q: How are territories defined for APAC?
-A: Territories in APAC are defined as Asia-Pacific and Japan, which are
-further divided into Greater China and Rest-of-APAC for reporting
-purposes. Also, named accounts with an annual contract value above $5M
-are managed by the Strategic Accounts team, irrespective of geography.
-```
-
-## Example run (OFFLINE DEMO mode)
-
-```
-Run mode: OFFLINE DEMO (keyword router, same tools)
-
-Q: What's our open pipeline in EMEA?
-A: pipeline (EMEA): $199,000 — Sum of amount for opportunities not yet closed (open pipeline).
-
-Q: What's our overall win rate?
-A: win_rate (ALL): 70.0% — Share of closed opportunities that closed won.
-
-Q: What's our average discount on closed-won deals?
-A: avg_discount (ALL): 11.9% — Average discount percentage across closed-won deals.
-
-Q: What discount level needs VP approval?
-A: Based on the sales playbook and policy docs:
-- (discount_policy.md) Discounts above 20% require VP of Sales and Finance approval...
-
-Q: How are territories defined for APAC?
-A: Based on the sales playbook and policy docs:
-- (territory_definitions.md) APAC: Asia-Pacific and Japan, split into Greater China and Rest-of-APAC...
-```
-
-## What I'd change for a real, production version
-
-- Back the semantic model with Snowflake/BigQuery instead of a CSV.
-- Replace the TF-IDF index with real embeddings and a hosted vector
-  store (or Snowflake Cortex Search).
-- Replace the keyword router with an actual agent framework (ADK,
-  LangGraph, or LangChain) doing LLM-driven tool selection in LIVE mode
-  by default.
-- Add evaluation/regression test cases for routing accuracy and answer
-  faithfulness, per the JD's "quality and governance" section.
-
-## Run it yourself
-
-```
-pip install pandas scikit-learn pyyaml
-python agent.py
-```
+---
+Built by [Vishwa Mehta](https://www.linkedin.com/in/vishwa10/) · Forward Deployed Engineer
